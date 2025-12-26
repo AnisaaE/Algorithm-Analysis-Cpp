@@ -9,7 +9,7 @@ using namespace std;
 long long recursionCounter = 0;
 int currentDepth = 0;
 int maxDepth = 0;
-bool verboseMode = false;
+bool verboseMode = false; 
 
 // Helper: Принтира чертички според дълбочината
 void printIndent() {
@@ -64,7 +64,7 @@ int fibonacciRecursive(int n) {
 }
 
 // 5. Tower of Hanoi
-void towerOfHanoi(int n, int src, int target, int aux) {
+void towerOfHanoi(int n, char src, char target, char aux) {
     recursionCounter++;
     if (n <= 0) return;
     
