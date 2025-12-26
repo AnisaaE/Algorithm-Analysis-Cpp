@@ -9,6 +9,7 @@
 #include "searching.h"
 #include "sorting.h"
 #include "heap.h"
+#include "greedy.h"
 
 using namespace std;
 using namespace std::chrono;
@@ -416,6 +417,90 @@ void runHeapTests() {
 }
 
 // ==========================================
+//      МОДУЛ 6: GREEDY ALGORITHMS
+// ==========================================
+void runGreedyTests() {
+    int choice;
+    do {
+        cout << "\n============================================\n";
+        cout << "      GREEDY ALGORITHMS MENU\n";
+        cout << "============================================\n";
+        cout << "1. Job Scheduling (Minimize Mean Wait Time)\n";
+        cout << "2. Activity Selection (Max Non-overlapping)\n";
+        cout << "3. Huffman Coding (Data Compression)\n";
+        cout << "0. Back to Main Menu\n";
+        cout << "Choice: ";
+        cin >> choice;
+
+        if (choice == 1) {
+            // --- JOB SCHEDULING ---
+            // Пример от слайда: J1=15, J2=8, J3=3, J4=10
+            cout << "\n--- TEST CASE: JOB SCHEDULING ---\n";
+            cout << "Loading data from lecture slide...\n";
+            
+            vector<Job> jobs = {
+                {1, 15}, 
+                {2, 8}, 
+                {3, 3}, 
+                {4, 10}
+            };
+            
+            cout << "Input: J1(15), J2(8), J3(3), J4(10)\n";
+            jobScheduling(jobs);
+            
+            cout << "\nVERIFICATION:\n";
+            cout << "Expected Average Time (from slide): 17.75\n";
+
+        } else if (choice == 2) {
+            // --- ACTIVITY SELECTION ---
+            // Пример от слайда (Таблицата с 11 активности)
+            cout << "\n--- TEST CASE: ACTIVITY SELECTION ---\n";
+            cout << "Loading data from lecture slide (11 activities)...\n";
+
+            vector<Activity> acts = {
+                {1, 1, 4},   {2, 3, 5},   {3, 0, 6},   {4, 5, 7}, 
+                {5, 3, 8},   {6, 5, 9},   {7, 6, 10},  {8, 8, 11},
+                {9, 8, 12},  {10, 2, 13}, {11, 12, 14}
+            };
+
+            activitySelection(acts);
+
+            cout << "\nVERIFICATION:\n";
+            cout << "Expected Set (from slide): A1, A4, A8, A11\n";
+            cout << "(Note: A1, A4, A8, A11 is the Optimal Greedy Solution)\n";
+
+        } else if (choice == 3) {
+            // --- HUFFMAN CODING ---
+            int subChoice;
+            cout << "\n--- HUFFMAN CODING ---\n";
+            cout << "1. Use Lecture Example ('abacdaacac')\n";
+            cout << "2. Enter Custom String\n";
+            cout << "Choice: ";
+            cin >> subChoice;
+
+            string input;
+            if (subChoice == 2) {
+                cout << "Enter text to compress: ";
+                cin >> input;
+            } else {
+                input = "abacdaacac";
+                cout << "Using Lecture Example: \"" << input << "\"\n";
+                cout << "Expected Frequencies -> a:5, c:3, b:1, d:1\n";
+            }
+
+            huffmanCoding(input);
+            
+            if (subChoice != 2) {
+                cout << "\nVERIFICATION:\n";
+                cout << "'a' (Most frequent) should have the shortest code (1 bit).\n";
+                cout << "'b' and 'd' (Least frequent) should have longest codes (3 bits).\n";
+            }
+        }
+
+    } while (choice != 0);
+}
+
+// ==========================================
 //              MAIN FUNCTION
 // ==========================================
 
@@ -430,6 +515,7 @@ int main() {
         cout << "3. Searching Algorithms\n";
         cout << "4. Sorting Algorithms (Benchmarks)\n";
         cout << "5. Heap Operations\n";
+        cout << "6. Greedy Algorithms\n";
         cout << "0. Exit\n";
         cout << "Select module: ";
         cin >> choice;
@@ -440,6 +526,7 @@ int main() {
             case 3: runSearchingTests(); break;
             case 4: runSortingBenchmark(); break;
             case 5: runHeapTests(); break;
+            case 6: runGreedyTests(); break;
             case 0: cout << "Goodbye!\n"; break;
             default: cout << "Invalid.\n";
         }
