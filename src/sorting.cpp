@@ -1,24 +1,27 @@
 #include "sorting.h"
 #include <vector>
 #include <iostream>
-#include <algorithm> // за std::max
+#include <algorithm> 
+#include <fstream>
+#include <queue>
+#include <string>
+#include <cstdio> 
 
 using namespace std;
 
 // ==========================================
-//            ПОМОЩНИ ФУНКЦИИ (HELPERS)
+//            (HELPERS)
 // ==========================================
 
-// Размяна на две числа (Swap)
 void swapInt(int* a, int* b) {
     int temp = *a;
     *a = *b;
     *b = temp;
 }
 
-// Логика за сливане (Merge) - използва се от Merge Sort
+//Merge logic for Merge Sort
 void mergeLogic(int* A, int n, int mid) {
-    // mid е размерът на лявата част
+    // mid 
     // n е общият размер
     vector<int> leftArr(mid);
     vector<int> rightArr(n - mid);
@@ -44,7 +47,6 @@ void mergeLogic(int* A, int n, int mid) {
 }
 
 // Логика за разделяне (Partition) - използва се от Quick Sort
-// Source: image_7e74ea.png (Pivot = A[0])
 int partitionLogic(int* A, int n) {
     if (n <= 1) return 0;
     int pivot = A[0]; 
@@ -92,11 +94,10 @@ void percDown(int* A, int i, int n) {
 }
 
 // ==========================================
-//        1. БАВНИ СОРТИРОВКИ O(n^2)
+//        O(n^2)
 // ==========================================
 
 // Selection Sort
-// Source: image_7e13b1.jpg
 void selectionSort(int* A, int n) {
     for (int i = 0; i < n - 1; i++) {
         int minIndex = i;
@@ -110,7 +111,6 @@ void selectionSort(int* A, int n) {
 }
 
 // Bubble Sort
-// Source: image_7e13ed.jpg
 void bubbleSort(int* A, int n) {
     for (int i = 0; i < n; i++) {
         for (int j = 1; j < (n - i); j++) {
@@ -122,7 +122,6 @@ void bubbleSort(int* A, int n) {
 }
 
 // Insertion Sort
-// Source: image_7e142c.jpg
 void insertionSort(int* A, int n) {
     int j, P, Tmp;
     for (P = 1; P < n; P++) {
@@ -135,11 +134,10 @@ void insertionSort(int* A, int n) {
 }
 
 // ==========================================
-//        2. БЪРЗИ СОРТИРОВКИ O(n log n)
+//        O(n log n)
 // ==========================================
 
 // Merge Sort
-// Source: image_7e1734.png
 void mergeSort(int* A, int n) {
     if (n <= 1) return;
 
@@ -152,48 +150,42 @@ void mergeSort(int* A, int n) {
 }
 
 // Quick Sort
-// Source: image_7e2231.png
 void quickSort(int* A, int n) {
     if (n <= 1) return;
 
     int index = partitionLogic(A, n);
 
     quickSort(A, index); // Sort Left Part
-    
-    // Sort Right Part (index + 1 нататък)
     quickSort(A + index + 1, n - index - 1);
 }
 
 // Heap Sort
-// Source: image_7e842c.png & image_7e8468.png
 void heapSort(int* A, int n) {
-    // 1. Build Heap (Построяване на пирамидата)
+    // 1. Build Heap
     for (int i = n / 2; i >= 0; i--) {
         percDown(A, i, n);
     }
 
-    // 2. Delete Max (Сортиране)
+    // 2. Delete Max
     for (int i = n - 1; i > 0; i--) {
-        swapInt(&A[0], &A[i]); // Най-големият отива накрая
-        percDown(A, 0, i);     // Възстановяване на пирамидата
+        swapInt(&A[0], &A[i]); 
+        percDown(A, 0, i);     
     }
 }
 
 // ==========================================
-//        3. ЛИНЕЙНИ СОРТИРОВКИ O(n)
+//        3.  O(n)
 // ==========================================
 
 // Counting Sort (Stable version for Satellite Data)
 void countingSort(int* A, int n) {
     if (n <= 1) return;
 
-    // Намиране на максималния елемент
     int maxVal = A[0];
     for (int i = 1; i < n; i++) {
         if (A[i] > maxVal) maxVal = A[i];
     }
 
-    // Вектор за бройките
     vector<int> count(maxVal + 1, 0);
 
     // Броене
@@ -201,57 +193,170 @@ void countingSort(int* A, int n) {
         count[A[i]]++;
     }
 
-    // Кумулативно сумиране (за стабилност)
     for (int i = 1; i <= maxVal; i++) {
         count[i] += count[i - 1];
     }
 
-    // Построяване на изходния масив
     vector<int> output(n);
     for (int i = n - 1; i >= 0; i--) {
         output[count[A[i]] - 1] = A[i];
         count[A[i]]--;
     }
 
-    // Копиране обратно в оригиналния масив
     for (int i = 0; i < n; i++) {
         A[i] = output[i];
     }
 }
 
-// Помощна за Radix Sort
 void countingSortForRadix(int* A, int n, int exp) {
     vector<int> output(n);
     int count[10] = {0};
 
-    // Броене на цифрите
     for (int i = 0; i < n; i++)
         count[(A[i] / exp) % 10]++;
 
-    // Кумулативно
     for (int i = 1; i < 10; i++)
         count[i] += count[i - 1];
 
-    // Output
     for (int i = n - 1; i >= 0; i--) {
         output[count[(A[i] / exp) % 10] - 1] = A[i];
         count[(A[i] / exp) % 10]--;
     }
 
-    // Copy back
     for (int i = 0; i < n; i++)
         A[i] = output[i];
 }
 
 // Radix Sort
 void radixSort(int* A, int n) {
-    // Намиране на макс
     int maxVal = A[0];
     for (int i = 1; i < n; i++)
         if (A[i] > maxVal) maxVal = A[i];
 
-    // Сортиране по разреди (1, 10, 100...)
     for (int exp = 1; maxVal / exp > 0; exp *= 10) {
         countingSortForRadix(A, n, exp);
     }
+}
+
+// ==========================================
+//     EXTERNAL SORTING (HARICI SIRALAMA)
+// ==========================================
+
+// struct for Min-Heap node
+struct MinHeapNode {
+    int element; 
+    int i;       
+};
+
+// Comparator for the priority queue (to work like Min-Heap)
+struct comp {
+    bool operator()(MinHeapNode l, MinHeapNode r) {
+        return l.element > r.element;
+    }
+};
+
+/**
+ * K-Way Merging (8 Yollu Birleştirme)
+ * using Binary Heap to merge k sorted files
+ */
+void mergeFiles(const char* output_file, int k) {
+    vector<ifstream*> inFiles(k);
+    for (int i = 0; i < k; i++) {
+        string fileName = "temp_" + to_string(i) + ".txt";
+        inFiles[i] = new ifstream(fileName);
+    }
+
+    ofstream out(output_file);
+    
+    priority_queue<MinHeapNode, vector<MinHeapNode>, comp> pq;
+
+    for (int i = 0; i < k; i++) {
+        int val;
+        if (*inFiles[i] >> val) {
+            pq.push({val, i});
+        }
+    }
+
+    while (!pq.empty()) {
+        MinHeapNode root = pq.top();
+        pq.pop();
+
+        out << root.element << " ";
+
+        int i = root.i;
+        int nextVal;
+        if (*inFiles[i] >> nextVal) {
+            pq.push({nextVal, i});
+        }
+    }
+
+    for (int i = 0; i < k; i++) {
+        inFiles[i]->close();
+        delete inFiles[i];
+        string fileName = "temp_" + to_string(i) + ".txt";
+        remove(fileName.c_str());
+    }
+    out.close();
+}
+
+/**
+ * creating initial runs 
+ */
+int createInitialRuns(const char* input_file, int run_size) {
+    ifstream in(input_file);
+    if (!in.is_open()) return 0;
+
+    ofstream out;
+    vector<int> arr(run_size);
+    bool moreInput = true;
+    int nextRunIdx = 0;
+    int val;
+
+    while (moreInput) {
+        int i = 0;
+        // simulation og RAM limit
+        while (i < run_size && in >> val) {
+            arr[i++] = val;
+        }
+
+        if (i == 0) break; 
+
+        sort(arr.begin(), arr.begin() + i);
+
+        string fileName = "temp_" + to_string(nextRunIdx) + ".txt";
+        out.open(fileName);
+        for (int j = 0; j < i; j++) {
+            out << arr[j] << " ";
+        }
+        out.close();
+        nextRunIdx++;
+    }
+    in.close();
+    return nextRunIdx;
+}
+
+void externalSort(int* A, int n) {
+    const char* input_file = "data_input.txt";
+    const char* output_file = "data_output.txt";
+    
+    ofstream inFile(input_file);
+    for (int i = 0; i < n; i++) {
+        inFile << A[i] << " ";
+    }
+    inFile.close();
+
+    int run_size = (n < 20) ? 2 : (n / 10 + 1); 
+
+    int numRuns = createInitialRuns(input_file, run_size);
+
+    mergeFiles(output_file, numRuns);
+
+    ifstream outFile(output_file);
+    for (int i = 0; i < n; i++) {
+        outFile >> A[i];
+    }
+    outFile.close();
+
+    remove(input_file);
+    remove(output_file);
 }

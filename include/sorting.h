@@ -20,6 +20,8 @@ void countingSort(int* A, int n);
 // Radix Sort (Базиран на Counting Sort)
 void radixSort(int* A, int n);
 
+void externalSort(int* A, int n);
+
 // Helper
 void swapInt(int* a, int* b);
 

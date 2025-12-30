@@ -1,10 +1,10 @@
 #include "../include/max_subsequence.h"
 #include <vector>
-#include <algorithm> // For std::max
+#include <algorithm> 
 
 using namespace std;
 
-// --- Helper for Divide & Conquer ---
+// Helper for Divide & Conquer
 // Finds maximum sum passing through the center
 int maxSubSumRec(const vector<int>& a, int left, int right) {
     if (left == right) { // Base case

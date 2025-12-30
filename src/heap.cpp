@@ -3,23 +3,19 @@
 
 using namespace std;
 
-// --- CONSTRUCTORS ---
-
 BinaryHeap::BinaryHeap(int capacity) {
-    // 1-based indexing, so size is capacity + 1
     array.resize(capacity + 1);
     currentSize = 0;
     
-    // Sentinel Node (from text: -infinity at index 0)
     array[0] = INT_MIN; 
 }
 
 // BuildHeap Logic (Bottom-Up)
-// Text: "for i = N/2 to 1 do Heapify(i)"
+// "for i = N/2 to 1 do Heapify(i)"
 BinaryHeap::BinaryHeap(const std::vector<int>& items) {
     currentSize = items.size();
     array.resize(currentSize + 1);
-    array[0] = INT_MIN; // Sentinel
+    array[0] = INT_MIN; 
 
     // Copy elements starting at index 1
     for (int i = 0; i < currentSize; i++) {
@@ -32,48 +28,40 @@ BinaryHeap::BinaryHeap(const std::vector<int>& items) {
     }
 }
 
-// --- CORE OPERATIONS ---
-
 bool BinaryHeap::isEmpty() const {
     return currentSize == 0;
 }
 
 int BinaryHeap::findMin() const {
-    if (isEmpty()) return -1; // Error code
+    if (isEmpty()) return -1; 
     return array[1];
 }
 
-// Source: image_cfc0be.jpg (InsertKey)
 void BinaryHeap::insert(int key) {
-    // Resize if full
     if (currentSize == array.size() - 1) {
         array.resize(array.size() * 2);
     }
 
-    // Increase # of nodes
     int N = ++currentSize;
     
     // Percolate Up
-    // Note: The slide uses "while(1)" with checks.
-    // We use the Sentinel at array[0] to stop the loop automatically if needed,
+    // Note: The slide in the lecture uses "while(1)" with checks.
+    // I use the Sentinel at array[0] to stop the loop automatically if needed,
     // but here we follow the slide logic structure.
     
     int node = N;
-    while (node > 1) { // Logic adapted for C++ loop
+    while (node > 1) {
         int parent = node / 2;
         if (array[parent] < key) {
-            // Parent is smaller? Then we are done (Min-Heap property satisfied)
             break; 
         }
-        
-        // Exchange keys with parent
         array[node] = array[parent];
-        node = parent; // Move one level up
+        node = parent; 
     }
-    array[node] = key; // Insert the key
+    array[node] = key; 
 }
 
-// Helper: Percolate Down (Logic extracted from DeleteMin slide)
+// Helper: Percolate Down 
 void BinaryHeap::percolateDown(int hole) {
     int child;
     int tmp = array[hole];
@@ -81,12 +69,10 @@ void BinaryHeap::percolateDown(int hole) {
     while (hole * 2 <= currentSize) {
         child = hole * 2; // Left child
         
-        // Check if right child exists and is smaller
         if (child != currentSize && array[child + 1] < array[child]) {
             child++;
         }
 
-        // If child is smaller than tmp, move child up
         if (array[child] < tmp) {
             array[hole] = array[child];
         } else {
@@ -97,15 +83,12 @@ void BinaryHeap::percolateDown(int hole) {
     array[hole] = tmp;
 }
 
-// Source: image_cfc080.jpg (DeleteMin)
 void BinaryHeap::deleteMin() {
     if (isEmpty()) return;
 
-    // Move last key to root
     array[1] = array[currentSize];
     currentSize--;
 
-    // Push the key down
     percolateDown(1);
 }
 
@@ -116,9 +99,9 @@ int BinaryHeap::deleteMinReturn() {
     return minItem;
 }
 
-// --- ADDITIONAL OPERATIONS (From Text) ---
+// --- ADDITIONAL OPERATIONS---
 
-// Text: "Subtract Delta from H[P]. Then move key Up."
+// "Subtract Delta from H[P]. Then move key Up."
 void BinaryHeap::decreaseKey(int index, int delta) {
     if (index > currentSize || index < 1) return;
 
@@ -134,7 +117,7 @@ void BinaryHeap::decreaseKey(int index, int delta) {
     array[node] = tmp;
 }
 
-// Text: "Add Delta to H[P]. Then move key Down."
+// "Add Delta to H[P]. Then move key Down."
 void BinaryHeap::increaseKey(int index, int delta) {
     if (index > currentSize || index < 1) return;
 
@@ -142,7 +125,7 @@ void BinaryHeap::increaseKey(int index, int delta) {
     percolateDown(index);
 }
 
-// Text: "Copy H[N] to H[index]. Then move down."
+// "Copy H[N] to H[index]. Then move down."
 void BinaryHeap::deleteKey(int index) {
     if (index > currentSize || index < 1) return;
 
@@ -172,7 +155,7 @@ const std::vector<int>& BinaryHeap::getElements() const {
 }
 
 // Merge Heaps (External Function)
-// Text: "Copy H2 to H1, then BuildHeap. Time: O(N)"
+// "Copy H2 to H1, then BuildHeap. Time: O(N)"
 BinaryHeap mergeHeaps(const BinaryHeap& h1, const BinaryHeap& h2) {
     vector<int> combined;
     

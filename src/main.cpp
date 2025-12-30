@@ -1,28 +1,29 @@
 #include <iostream>
 #include <vector>
 #include <chrono>
-#include <algorithm> // За sort
-#include <iomanip>   // За setw
-#include <random>    // За random
+#include <algorithm> 
+#include <iomanip>   
+#include <random>    
 #include "max_subsequence.h"
 #include "recursive.h"
 #include "searching.h"
 #include "sorting.h"
 #include "heap.h"
 #include "greedy.h"
+#include "dynamic.h" 
 
 using namespace std;
 using namespace std::chrono;
 
 // ==========================================
-//            ПОМОЩНИ ФУНКЦИИ
+//            Helper functions
 // ==========================================
 
 void printSeparator() {
     cout << "----------------------------------------------------------------\n";
 }
 
-// Генератор на случайни числа
+// generate random daata
 vector<int> generateRandomArray(int size, int minVal = 0, int maxVal = 10000) {
     vector<int> arr(size);
     random_device rd;
@@ -33,7 +34,7 @@ vector<int> generateRandomArray(int size, int minVal = 0, int maxVal = 10000) {
     return arr;
 }
 
-// --- УНИВЕРСАЛНА ФУНКЦИЯ ЗА ИЗБОР НА ДАННИ ---
+//choose type of data
 vector<int> getDataFromUser() {
     int choice;
     int n;
@@ -45,7 +46,7 @@ vector<int> getDataFromUser() {
     cin >> choice;
 
     if (choice == 2) {
-        // Ръчно въвеждане
+        // manual input
         cout << "Enter number of elements: ";
         cin >> n;
         vector<int> arr(n);
@@ -56,23 +57,21 @@ vector<int> getDataFromUser() {
         cout << "-> Custom data loaded.\n";
         return arr;
     } else {
-        // Случайно (по подразбиране)
-        cout << "Enter array size (Recommended: 1000 - 10000): ";
+        // random
+        cout << "Enter array size (Recommended: 1000/2000): ";
         cin >> n;
-        // Генерираме случайни (0 до 10000)
         cout << "-> Generating random data...\n";
         return generateRandomArray(n, 0, 10000);
     }
 }
 
 // ==========================================
-//      МОДУЛ 1: MAX SUBSEQUENCE PROBLEM
+//      1: MAX SUBSEQUENCE PROBLEM
 // ==========================================
 
 void runMaxSubsequenceBenchmark() {
     cout << "\n=== MAX SUBSEQUENCE PERFORMANCE TEST ===\n";
     
-    // Питаме потребителя за данни
     vector<int> data = getDataFromUser();
     int n = data.size();
 
@@ -120,12 +119,9 @@ void runMaxSubsequenceBenchmark() {
 }
 
 // ==========================================
-//      МОДУЛ 2: RECURSIVE ALGORITHMS
+//      2: RECURSIVE ALGORITHMS
 // ==========================================
 
-// ==========================================
-//      МОДУЛ 2: RECURSIVE ALGORITHMS (FIXED)
-// ==========================================
 void runRecursiveTests() {
     int choice;
     do {
@@ -141,12 +137,11 @@ void runRecursiveTests() {
         cout << "Choice: ";
         cin >> choice;
 
-        // Нулираме броячите преди всяко пускане
+        // reset counter and verbose mode
         recursionCounter = 0; 
         verboseMode = false;
 
         if (choice == 1) {
-            // --- ТУК БЕШЕ ПРОБЛЕМЪТ. ЕТО ПЪЛНАТА ТАБЛИЦА СЕГА: ---
             int n; 
             cout << "Enter N for benchmark (e.g., 10 or 20): "; 
             cin >> n;
@@ -159,7 +154,7 @@ void runRecursiveTests() {
             int r1 = sumRecursive(n);
             cout << left << setw(20) << "Sum(1..N)" << setw(15) << n << setw(15) << r1 << setw(15) << recursionCounter << endl;
 
-            // 2. Fibonacci (Внимаваме да не е твърде голямо)
+            // 2. Fibonacci
             if(n <= 40) {
                 recursionCounter = 0; 
                 int r2 = fibonacciRecursive(n);
@@ -171,10 +166,9 @@ void runRecursiveTests() {
             // 3. Power (2^N)
             recursionCounter = 0; 
             double r3 = powerRecursive(2.0, n);
-            // Използваме scientific notation за големи числа, или просто double
             cout << left << setw(20) << "Power(2^N)" << setw(15) << n << setw(15) << r3 << setw(15) << recursionCounter << endl;
 
-            // 4. Super Digit (Ще ползваме число, базирано на N, напр. N * 987, за да е интересно)
+            // 4. Super Digit
             int inputSD = n * 9876; 
             recursionCounter = 0; 
             int r4 = superDigitRecursive(inputSD);
@@ -212,12 +206,9 @@ void runRecursiveTests() {
 
     } while (choice != 0);
 }
-// ==========================================
-//      МОДУЛ 3: SEARCHING ALGORITHMS
-// ==========================================
 
 // ==========================================
-//      MODULE 3: SEARCHING (UPDATED)
+//      MODULE 3: SEARCHING
 // ==========================================
 void runSearchingTests() {
     cout << "\n=== SEARCHING ALGORITHMS BENCHMARK ===\n";
@@ -230,7 +221,7 @@ void runSearchingTests() {
     sort(data.begin(), data.end());
     cout << "-> Data sorted automatically (Required for Binary Search validity).\n";
 
-    // 3. Choose Target (The new logic)
+    // 3. Choose Target
     int target;
     int searchMode;
 
@@ -241,14 +232,12 @@ void runSearchingTests() {
     cin >> searchMode;
 
     if (searchMode == 2) {
-        // MANUAL MODE WITH WARNING
         cout << "\n[WARNING]: If you enter a number that does not exist in the array,\n";
         cout << "           the result will be -1 (Not Found).\n";
         cout << "Enter value to search for: ";
         cin >> target;
     } else {
-        // AUTO MODE
-        target = data[n/2]; // Pick the middle element
+        target = data[n/2]; 
         cout << "-> Auto-selected value: " << target << endl;
     }
     
@@ -257,19 +246,16 @@ void runSearchingTests() {
     cout << left << setw(25) << "ALGORITHM" << setw(20) << "TIME (us)" << setw(15) << "FOUND INDEX" << endl;
     printSeparator();
 
-    // Linear Forward
     auto start = high_resolution_clock::now();
     int idx1 = linearSearchForward(data.data(), n, target);
     auto end = high_resolution_clock::now();
     cout << left << setw(25) << "Linear Forward" << setw(20) << duration_cast<microseconds>(end - start).count() << setw(15) << idx1 << endl;
 
-    // Linear Backward
     start = high_resolution_clock::now();
     int idx2 = linearSearchBackward(data.data(), n, target);
     end = high_resolution_clock::now();
     cout << left << setw(25) << "Linear Backward" << setw(20) << duration_cast<microseconds>(end - start).count() << setw(15) << idx2 << endl;
 
-    // Binary Search
     start = high_resolution_clock::now();
     int idx3 = binarySearchRecursive(data.data(), target, 0, n - 1);
     end = high_resolution_clock::now();
@@ -282,6 +268,7 @@ void runSearchingTests() {
         cout << "Result: The number " << target << " was successfully found.\n";
     }
 }
+
 // ==========================================
 //      МОДУЛ 4: SORTING ALGORITHMS
 // ==========================================
@@ -289,7 +276,6 @@ void runSearchingTests() {
 void runSortingBenchmark() {
     cout << "\n========== SORTING ALGORITHMS BENCHMARK ==========\n";
     
-    // Питаме потребителя за данни
     vector<int> masterData = getDataFromUser();
     int n = masterData.size();
 
@@ -367,6 +353,19 @@ void runSortingBenchmark() {
     }
 
     printSeparator();
+
+    // --- EXTERNAL SORTING ---
+    copy = masterData;
+    start = high_resolution_clock::now();
+    
+    externalSort(copy.data(), n); 
+    
+    end = high_resolution_clock::now();
+    cout << left << setw(25) << "External Sort" 
+         << setw(15) << "O(n log n) + I/O" 
+         << setw(20) << duration_cast<microseconds>(end - start).count() << endl;
+
+    printSeparator();
 }
 
 // ==========================================
@@ -379,13 +378,12 @@ void runHeapTests() {
 
     cout << "\n========== HEAP MANAGER (PRIORITY QUEUE) ==========\n";
     
-    // Питаме потребителя още в началото дали иска да зареди данни
     cout << "Do you want to initialize the Heap now?\n";
     cout << "1. Yes (Random or Manual)\n2. No (Start Empty)\nChoice: ";
     int initChoice; cin >> initChoice;
     
     if (initChoice == 1) {
-        vector<int> initData = getDataFromUser(); // Използваме общата функция
+        vector<int> initData = getDataFromUser();
         h = BinaryHeap(initData);
         cout << "-> Heap initialized!\n";
         h.printHeap();
@@ -427,35 +425,24 @@ void runGreedyTests() {
         cout << "============================================\n";
         cout << "1. Job Scheduling (Minimize Mean Wait Time)\n";
         cout << "2. Activity Selection (Max Non-overlapping)\n";
-        cout << "3. Huffman Coding (Data Compression)\n";
+        cout << "3. Huffman Coding (Encode & Decode)\n";
         cout << "0. Back to Main Menu\n";
         cout << "Choice: ";
         cin >> choice;
 
         if (choice == 1) {
-            // --- JOB SCHEDULING ---
-            // Пример от слайда: J1=15, J2=8, J3=3, J4=10
             cout << "\n--- TEST CASE: JOB SCHEDULING ---\n";
             cout << "Loading data from lecture slide...\n";
             
-            vector<Job> jobs = {
-                {1, 15}, 
-                {2, 8}, 
-                {3, 3}, 
-                {4, 10}
-            };
+            vector<Job> jobs = { {1, 15}, {2, 8}, {3, 3}, {4, 10} };
             
             cout << "Input: J1(15), J2(8), J3(3), J4(10)\n";
             jobScheduling(jobs);
-            
-            cout << "\nVERIFICATION:\n";
-            cout << "Expected Average Time (from slide): 17.75\n";
+            cout << "\nVERIFICATION:\nExpected Average Time (from slide): 17.75\n";
 
         } else if (choice == 2) {
-            // --- ACTIVITY SELECTION ---
-            // Пример от слайда (Таблицата с 11 активности)
             cout << "\n--- TEST CASE: ACTIVITY SELECTION ---\n";
-            cout << "Loading data from lecture slide (11 activities)...\n";
+            cout << "Loading data from lecture slide...\n";
 
             vector<Activity> acts = {
                 {1, 1, 4},   {2, 3, 5},   {3, 0, 6},   {4, 5, 7}, 
@@ -464,13 +451,9 @@ void runGreedyTests() {
             };
 
             activitySelection(acts);
-
-            cout << "\nVERIFICATION:\n";
-            cout << "Expected Set (from slide): A1, A4, A8, A11\n";
-            cout << "(Note: A1, A4, A8, A11 is the Optimal Greedy Solution)\n";
+            cout << "\nVERIFICATION:\nExpected Set (from slide): A1, A4, A8, A11\n";
 
         } else if (choice == 3) {
-            // --- HUFFMAN CODING ---
             int subChoice;
             cout << "\n--- HUFFMAN CODING ---\n";
             cout << "1. Use Lecture Example ('abacdaacac')\n";
@@ -485,16 +468,80 @@ void runGreedyTests() {
             } else {
                 input = "abacdaacac";
                 cout << "Using Lecture Example: \"" << input << "\"\n";
-                cout << "Expected Frequencies -> a:5, c:3, b:1, d:1\n";
             }
 
             huffmanCoding(input);
+        }
+
+    } while (choice != 0);
+}
+
+// ==========================================
+//      МОДУЛ 7: DYNAMIC PROGRAMMING (НОВО)
+// ==========================================
+void runDynamicTests() {
+    int choice;
+    do {
+        cout << "\n============================================\n";
+        cout << "      DYNAMIC PROGRAMMING MENU\n";
+        cout << "============================================\n";
+        cout << "1. Fibonacci (Bottom-Up Table)\n";
+        cout << "2. Min Cost Path (Matrix Visualization)\n";
+        cout << "3. 0/1 Knapsack Problem (Table)\n";
+        cout << "0. Back to Main Menu\n";
+        cout << "Choice: ";
+        cin >> choice;
+
+        if (choice == 1) {
+            // --- FIBONACCI ---
+            int n;
+            cout << "Enter N for Fibonacci: ";
+            cin >> n;
+            runFibonacciDP(n);
+
+        } else if (choice == 2) {
+            // --- MIN COST PATH ---
+            // Използваме матрицата от слайда (image_a5f447.png) 
+            cout << "\n--- TEST CASE: Min Cost Path ---\n";
+            cout << "Using Matrix from lecture slide (2x2 example):\n";
             
-            if (subChoice != 2) {
-                cout << "\nVERIFICATION:\n";
-                cout << "'a' (Most frequent) should have the shortest code (1 bit).\n";
-                cout << "'b' and 'd' (Least frequent) should have longest codes (3 bits).\n";
+            vector<vector<int>> cost = {
+                {1, 5},
+                {4, 2}
+            };
+            
+            // Ако искаш по-голям пример, може да разкоментираш това:
+            /*
+            vector<vector<int>> cost = {
+                {1, 3, 5},
+                {2, 1, 2},
+                {4, 3, 1}
+            };
+            */
+            runMinCostPath(cost);
+
+        } else if (choice == 3) {
+            // --- KNAPSACK ---
+            // Използваме данните от слайда (image_a5f869.png)
+            cout << "\n--- TEST CASE: Knapsack ---\n";
+            
+            int W = 60; // Капацитет
+            vector<Item> items = {
+                {1, 5, 30},   // {id, weight, value}
+                {2, 10, 20},
+                {3, 20, 100},
+                {4, 30, 90},
+                {5, 40, 160}
+            };
+            
+            cout << "Capacity: " << W << endl;
+            cout << "Items from slide: \n";
+            for(auto& it : items) {
+                cout << "Item " << it.id << " (W:" << it.weight << ", V:" << it.value << ")\n"; 
             }
+
+            runKnapsackDP(W, items);
+            cout << "\nVERIFICATION:\nExpected Max Value (from slide): 260\n";
         }
 
     } while (choice != 0);
@@ -516,6 +563,7 @@ int main() {
         cout << "4. Sorting Algorithms (Benchmarks)\n";
         cout << "5. Heap Operations\n";
         cout << "6. Greedy Algorithms\n";
+        cout << "7. Dynamic Programming\n"; // <--- НОВО
         cout << "0. Exit\n";
         cout << "Select module: ";
         cin >> choice;
@@ -527,6 +575,7 @@ int main() {
             case 4: runSortingBenchmark(); break;
             case 5: runHeapTests(); break;
             case 6: runGreedyTests(); break;
+            case 7: runDynamicTests(); break; // <--- НОВО
             case 0: cout << "Goodbye!\n"; break;
             default: cout << "Invalid.\n";
         }

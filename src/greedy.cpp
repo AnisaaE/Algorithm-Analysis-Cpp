@@ -13,7 +13,6 @@ using namespace std;
 // 1. JOB SCHEDULING (Shortest Job First)
 // ==========================================
 
-// Сравнителна функция: Сортираме задачите по продължителност (възходящ ред)
 bool compareJobs(const Job& a, const Job& b) {
     return a.duration < b.duration;
 }
@@ -21,16 +20,14 @@ bool compareJobs(const Job& a, const Job& b) {
 void jobScheduling(vector<Job>& jobs) {
     if (jobs.empty()) return;
 
-    // 1. Greedy Стъпка: Сортиране по най-къса задача (SJF)
     sort(jobs.begin(), jobs.end(), compareJobs);
 
     cout << "\n--- OPTIMAL JOB SCHEDULE (Shortest Job First) ---\n";
     cout << "Execution Order: ";
     
     double currentCompletionTime = 0;
-    double totalCompletionTime = 0; // Използваме това за средното време
+    double totalCompletionTime = 0; 
 
-    // 2. Изчисляване на времената
     for (size_t i = 0; i < jobs.size(); i++) {
         currentCompletionTime += jobs[i].duration;
         totalCompletionTime += currentCompletionTime;
@@ -40,7 +37,6 @@ void jobScheduling(vector<Job>& jobs) {
     }
     cout << endl;
 
-    // 3. Резултат: Средно време за завършване
     double averageTime = totalCompletionTime / jobs.size();
     cout << "Total Completion Time: " << totalCompletionTime << endl;
     cout << "Average Completion Time: " << fixed << setprecision(2) << averageTime << endl;
@@ -50,7 +46,7 @@ void jobScheduling(vector<Job>& jobs) {
 // 2. ACTIVITY SELECTION (Max Non-overlapping)
 // ==========================================
 
-// Сравнителна функция: Сортираме по време на ПРИКЛЮЧВАНЕ (Finish Time)
+// compare  by finish time
 bool compareActivities(const Activity& a, const Activity& b) {
     return a.finish < b.finish;
 }
@@ -58,36 +54,22 @@ bool compareActivities(const Activity& a, const Activity& b) {
 void activitySelection(vector<Activity>& activities) {
     if (activities.empty()) return;
 
-    // 1. Greedy Стъпка: Сортиране по Finish Time
     sort(activities.begin(), activities.end(), compareActivities);
 
     cout << "\n--- ACTIVITY SELECTION (Max Non-Overlapping Subset) ---\n";
     
-    // Покажи сортирания списък (за проверка)
-    /*
-    cout << "Activities sorted by finish time:\n";
-    for(const auto& a : activities) {
-        cout << "A" << a.id << "[" << a.start << "-" << a.finish << "] ";
-    }
-    cout << endl;
-    */
-
     vector<Activity> selected;
     
-    // 2. Винаги избираме първата дейност (тази, която свършва най-рано)
     selected.push_back(activities[0]);
     int lastFinishTime = activities[0].finish;
 
-    // 3. Обхождаме останалите
     for (size_t i = 1; i < activities.size(); i++) {
-        // Ако новата дейност започва СЛЕД или КОГАТО свършва предишната
         if (activities[i].start >= lastFinishTime) {
             selected.push_back(activities[i]);
-            lastFinishTime = activities[i].finish; // Обновяваме края
+            lastFinishTime = activities[i].finish; 
         }
     }
 
-    // 4. Резултат
     cout << "Selected Activities (" << selected.size() << " total): ";
     for (const auto& a : selected) {
         cout << "A" << a.id << " ";
@@ -96,72 +78,117 @@ void activitySelection(vector<Activity>& activities) {
 }
 
 // ==========================================
-// 3. HUFFMAN CODING (Data Compression)
+// 3. HUFFMAN CODING (Encode & Decode)
 // ==========================================
 
-// Помощна рекурсивна функция за принтиране на кодовете (Обхождане на дървото)
-void printCodes(HuffmanNode* root, string code) {
+// saving the codes in map
+void storeCodes(HuffmanNode* root, string str, map<char, string>& huffmanCode) {
     if (!root) return;
 
-    // Ако е листо (има буква, а не е $), принтираме кода
+    // Ако е листо (буква)
     if (root->data != '$') {
-        cout << "'" << root->data << "': " << code << endl;
+        huffmanCode[root->data] = str;
     }
 
-    // Рекурсия: Наляво добавяме '0', Надясно добавяме '1'
-    printCodes(root->left, code + "0");
-    printCodes(root->right, code + "1");
+    storeCodes(root->left, str + "0", huffmanCode);
+    storeCodes(root->right, str + "1", huffmanCode);
+}
+
+// DECODE Logic
+void decodeText(HuffmanNode* root, string encodedStr) {
+    cout << "\n[DECODING STEP]: Converting bits back to text...\n";
+    
+    string decodedResult = "";
+    HuffmanNode* curr = root;
+
+    for (char bit : encodedStr) {
+        if (bit == '0') {
+            curr = curr->left;
+        } else {
+            curr = curr->right;
+        }
+
+        if (!curr->left && !curr->right) {
+            decodedResult += curr->data; 
+            curr = root;
+        }
+    }
+    cout << "Decoded Text: " << decodedResult << endl;
 }
 
 void huffmanCoding(const string& text) {
-    cout << "\n--- HUFFMAN CODING LOGIC ---\n";
-    cout << "Input Text: \"" << text << "\"\n";
+    cout << "\n--- HUFFMAN CODING (ENCODE & DECODE) ---\n";
+    cout << "Original Input: \"" << text << "\"\n";
 
-    // 1. Преброяване на честотите (Frequency Count)
     map<char, unsigned> freqMap;
     for (char c : text) {
         freqMap[c]++;
     }
 
-    // Принтиране на честотите (за проверка)
-    cout << "Frequencies: ";
-    for (auto pair : freqMap) {
-        cout << pair.first << ":" << pair.second << " ";
-    }
-    cout << endl;
-
-    // 2. Създаване на Min-Heap (Priority Queue)
-    // Използваме Comparator от greedy.h
+    // creating Min-Heap (Priority Queue)
     priority_queue<HuffmanNode*, vector<HuffmanNode*>, Compare> minHeap;
-
     for (auto pair : freqMap) {
         minHeap.push(new HuffmanNode(pair.first, pair.second));
     }
 
-    // 3. Построяване на дървото (Build Tree Bottom-Up)
+    // Build Tree Bottom-Up
     while (minHeap.size() != 1) {
-        // Вадим двете най-малки честоти
-        HuffmanNode* left = minHeap.top();
-        minHeap.pop();
+        HuffmanNode* left = minHeap.top(); minHeap.pop();
+        HuffmanNode* right = minHeap.top(); minHeap.pop();
 
-        HuffmanNode* right = minHeap.top();
-        minHeap.pop();
-
-        // Създаваме нов вътрешен възел (родител) със сумата от честотите
-        // '$' е символ за вътрешен възел (не се ползва)
         HuffmanNode* top = new HuffmanNode('$', left->freq + right->freq);
-        
         top->left = left;
         top->right = right;
 
-        // Връщаме новия възел в опашката
         minHeap.push(top);
     }
-
-    // 4. Принтиране на резултатите
-    cout << "Generated Huffman Codes:\n";
-    printCodes(minHeap.top(), "");
     
-    // Забележка: В истинска програма тук трябва да освободим паметта (delete),
-    // но за целите на университетски проект това е достатъчно.
+    // saving the root for decode
+    HuffmanNode* root = minHeap.top();
+
+    // generate encode table
+    map<char, string> huffmanCode;
+    storeCodes(root, "", huffmanCode);
+
+    cout << "\n[CODE TABLE generated]:\n";
+    for (auto pair : huffmanCode) {
+        cout << "'" << pair.first << "': " << pair.second << endl;
+    }
+
+    string encodedString = "";
+    for (char c : text) {
+        encodedString += huffmanCode[c];
+    }
+    cout << "\n[ENCODED STRING] (Compressed Data):\n" << encodedString << endl;
+
+    decodeText(root, encodedString);
+
+    
+    // memory calculations
+
+    // Original size (8 bits per char)
+    int originalBits = text.length() * 8;
+
+    // Compressed size (Huffman)
+    int compressedBits = 0;
+    for (auto pair : freqMap) {
+        char c = pair.first;
+        int freq = pair.second;
+        int codeLength = huffmanCode[c].length();
+        compressedBits += freq * codeLength;
+    }
+
+    cout << "\n[MEMORY USAGE]\n";
+    cout << "Original size:   " << originalBits << " bits\n";
+    cout << "Compressed size: " << compressedBits << " bits\n";
+
+    double compressionRatio =
+        (double)compressedBits / originalBits * 100;
+
+    cout << "Compression ratio: " 
+         << compressionRatio << " %\n";
+
+    cout << "Memory saved: "
+         << (100 - compressionRatio) << " %\n";
+
 }
