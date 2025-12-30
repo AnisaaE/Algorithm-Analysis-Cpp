@@ -24,7 +24,7 @@ To compile and run the program, open your terminal (PowerShell or Command Prompt
 **Windows (PowerShell):**
 ```powershell
 g++ src/*.cpp -I include -o main; .\main
-
+```
 ## ✨ Features & Modules
 
 The project is divided into **7 core modules**, each focusing on a specific paradigm or data structure.
